@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
 
 var loghook = new(logrustest.Hook)

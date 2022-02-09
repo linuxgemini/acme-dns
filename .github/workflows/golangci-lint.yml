@@ -1,15 +1,18 @@
 name: golangci-lint
+concurrency: ci-${{ github.ref }}
+
 on:
   push:
     tags:
       - v*
     branches:
-      - master
+      - maintenance
   pull_request:
   schedule:
     # Run every 12 hours, at the 15 minute mark. E.g.
     # 2020-11-29 00:15:00 UTC, 2020-11-29 12:15:00 UTC, 2020-11-30 00:15:00 UTC
     - cron:  '15 */12 * * *'
+
 jobs:
   golangci:
     name: Lint Sourcecode

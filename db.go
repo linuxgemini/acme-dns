@@ -99,6 +99,8 @@ func (d *acmedb) checkDBUpgrades(versionString string) error {
 }
 
 func (d *acmedb) handleDBUpgrades(version int) error {
+	d.Lock()
+	defer d.Unlock()
 	var err error
 	if version < 1 {
 		err = d.handleDBUpgradeTo1()
@@ -113,6 +115,8 @@ func (d *acmedb) handleDBUpgrades(version int) error {
 }
 
 func (d *acmedb) handleDBUpgradeTo1() error {
+	d.Lock()
+	defer d.Unlock()
 	var err error
 	log.Info("Upgrading db to version 1")
 	tx, err := d.DB.Begin()
@@ -134,7 +138,7 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec(userTable)
+		_, err = tx.Exec(recordsTable)
 		if err != nil {
 			return err
 		}
@@ -153,6 +157,8 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 	return err
 }
 func (d *acmedb) handleDBUpgradeTo2() error {
+	d.Lock()
+	defer d.Unlock()
 	var err error
 	log.Info("Upgrading db to version 2")
 	tx, err := d.DB.Begin()
@@ -164,7 +170,7 @@ func (d *acmedb) handleDBUpgradeTo2() error {
 		}
 		_ = tx.Commit()
 	}()
-	_, _ = tx.Exec("ALTER TABLE records ADD COLUMN LastUsed INT");
+	_, _ = tx.Exec("ALTER TABLE records ADD COLUMN LastUsed INT")
 	if err != nil {
 		return err
 	}
@@ -371,5 +377,7 @@ func (d *acmedb) GetBackend() *sql.DB {
 }
 
 func (d *acmedb) SetBackend(backend *sql.DB) {
+	d.Lock()
+	defer d.Unlock()
 	d.DB = backend
 }

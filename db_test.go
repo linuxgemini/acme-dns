@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"errors"
-	"github.com/erikstmartin/go-testdb"
 	"testing"
+
+	"github.com/erikstmartin/go-testdb"
 )
 
 type testResult struct {

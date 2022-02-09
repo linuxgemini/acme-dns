@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/miekg/dns"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/miekg/dns"
+	log "github.com/sirupsen/logrus"
 )
 
 // Records is a slice of ResourceRecords
@@ -127,7 +128,7 @@ func (d *DNSServer) readQuery(m *dns.Msg, remoteAddr net.Addr) {
 	m.MsgHdr.Authoritative = authoritative
 	if authoritative {
 		if m.MsgHdr.Rcode == dns.RcodeNameError ||
-		   (m.MsgHdr.Rcode == dns.RcodeSuccess && len(m.Answer) == 0) {
+			(m.MsgHdr.Rcode == dns.RcodeSuccess && len(m.Answer) == 0) {
 			m.Ns = append(m.Ns, d.SOA)
 		}
 	}
@@ -138,7 +139,7 @@ func (d *DNSServer) getRecord(q dns.Question) ([]dns.RR, error) {
 	var cnames []dns.RR
 	domain, ok := d.Domains[strings.ToLower(q.Name)]
 	if !ok {
-		return rr, fmt.Errorf("No records for domain %s", q.Name)
+		return rr, fmt.Errorf("no records for domain %s", q.Name)
 	}
 	for _, ri := range domain.Records {
 		if ri.Header().Rrtype == q.Qtype {
@@ -162,6 +163,7 @@ func (d *DNSServer) answeringForDomain(name string) bool {
 	_, ok := d.Domains[strings.ToLower(name)]
 	return ok
 }
+
 // hasTxtForDomain checks if we have txt records for a domain
 func (d *DNSServer) hasTxtForDomain(q dns.Question) bool {
 	subdomain := sanitizeDomainQuestion(q.Name)
@@ -172,7 +174,6 @@ func (d *DNSServer) hasTxtForDomain(q dns.Question) bool {
 	}
 	return len(txts) > 0
 }
-
 
 func (d *DNSServer) isAuthoritative(q dns.Question) bool {
 	if d.answeringForDomain(q.Name) {
