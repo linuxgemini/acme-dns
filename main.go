@@ -141,9 +141,12 @@ func startHTTPAPI(errChan chan error, config DNSConfig, dnsservers []*DNSServer)
 	// Set up certmagic for getting certificate for acme-dns api
 	certmagic.DefaultACME.DNS01Solver = &provider
 	certmagic.DefaultACME.Agreed = true
-	if Config.API.TLS == "letsencrypt" {
+	switch Config.API.TLS {
+	case "letsencrypt":
 		certmagic.DefaultACME.CA = certmagic.LetsEncryptProductionCA
-	} else {
+	case "custom":
+		certmagic.DefaultACME.CA = Config.API.TLSCustomURL
+	default:
 		certmagic.DefaultACME.CA = certmagic.LetsEncryptStagingCA
 	}
 	certmagic.DefaultACME.Email = Config.API.NotificationEmail
@@ -160,7 +163,7 @@ func startHTTPAPI(errChan chan error, config DNSConfig, dnsservers []*DNSServer)
 	magic := certmagic.New(magicCache, *magicConf)
 	var err error
 	switch Config.API.TLS {
-	case "letsencryptstaging":
+	case "letsencrypt", "letsencryptstaging", "custom":
 		err = magic.ManageAsync(context.Background(), []string{Config.General.Domain})
 		if err != nil {
 			errChan <- err
@@ -168,21 +171,6 @@ func startHTTPAPI(errChan chan error, config DNSConfig, dnsservers []*DNSServer)
 		}
 		cfg.GetCertificate = magic.GetCertificate
 
-		srv := &http.Server{
-			Addr:      host,
-			Handler:   c.Handler(api),
-			TLSConfig: cfg,
-			ErrorLog:  stdlog.New(logwriter, "", 0),
-		}
-		log.WithFields(log.Fields{"host": host, "domain": Config.General.Domain}).Info("Listening HTTPS")
-		err = srv.ListenAndServeTLS("", "")
-	case "letsencrypt":
-		err = magic.ManageAsync(context.Background(), []string{Config.General.Domain})
-		if err != nil {
-			errChan <- err
-			return
-		}
-		cfg.GetCertificate = magic.GetCertificate
 		srv := &http.Server{
 			Addr:      host,
 			Handler:   c.Handler(api),
