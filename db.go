@@ -41,6 +41,15 @@ var txtTable = `
 	        InsertDate, INT
 	);`
 
+// From DBVersion 1
+var userTable = `
+	CREATE TABLE IF NOT EXISTS records(
+        Username TEXT UNIQUE NOT NULL PRIMARY KEY,
+        Password TEXT UNIQUE NOT NULL,
+        Subdomain TEXT UNIQUE NOT NULL,
+		AllowFrom TEXT
+    );`
+
 // getSQLiteStmt replaces all PostgreSQL prepared statement placeholders (eg. $1, $2) with SQLite variant "?"
 func getSQLiteStmt(s string) string {
 	re, _ := regexp.Compile(`\$[0-9]`)
@@ -99,8 +108,6 @@ func (d *acmedb) checkDBUpgrades(versionString string) error {
 }
 
 func (d *acmedb) handleDBUpgrades(version int) error {
-	d.Lock()
-	defer d.Unlock()
 	var err error
 	if version < 1 {
 		err = d.handleDBUpgradeTo1()
@@ -115,8 +122,6 @@ func (d *acmedb) handleDBUpgrades(version int) error {
 }
 
 func (d *acmedb) handleDBUpgradeTo1() error {
-	d.Lock()
-	defer d.Unlock()
 	var err error
 	log.Info("Upgrading db to version 1")
 	tx, err := d.DB.Begin()
@@ -138,7 +143,7 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 		if err != nil {
 			return err
 		}
-		_, err = tx.Exec(recordsTable)
+		_, err = tx.Exec(userTable)
 		if err != nil {
 			return err
 		}
@@ -157,8 +162,6 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 	return err
 }
 func (d *acmedb) handleDBUpgradeTo2() error {
-	d.Lock()
-	defer d.Unlock()
 	var err error
 	log.Info("Upgrading db to version 2")
 	tx, err := d.DB.Begin()
@@ -204,7 +207,7 @@ func (d *acmedb) Register(afrom cidrslice) (ACMETxt, error) {
         Username,
         Password,
         Subdomain,
-		AllowFrom) 
+		AllowFrom)
         values($1, $2, $3, $4)`
 	if Config.Database.Engine == "sqlite3" {
 		regSQL = getSQLiteStmt(regSQL)
