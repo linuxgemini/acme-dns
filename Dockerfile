@@ -3,7 +3,8 @@ LABEL maintainer="acmedns+fork@iye.be"
 
 RUN apk add --update gcc musl-dev git
 
-RUN git clone --branch maintenance --depth=1 https://github.com/linuxgemini/acme-dns /tmp/acme-dns
+RUN mkdir -p /tmp/acme-dns
+COPY . /tmp/acme-dns/
 
 ENV GOPATH       /tmp/buildcache
 ENV CGO_ENABLED  1
