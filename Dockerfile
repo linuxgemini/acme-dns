@@ -3,7 +3,6 @@ LABEL maintainer="acmedns+fork@iye.be"
 
 RUN apk add --update gcc musl-dev git
 
-RUN mkdir -p /tmp/acme-dns
 COPY . /tmp/acme-dns/
 
 ENV GOPATH       /tmp/buildcache
