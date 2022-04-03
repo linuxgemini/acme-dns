@@ -133,8 +133,8 @@ func TestPrepareConfig(t *testing.T) {
 		input       DNSConfig
 		shoulderror bool
 	}{
-		{DNSConfig{Database: dbsettings{Engine: "whatever", Connection: "whatever_too"}}, false},
-		{DNSConfig{Database: dbsettings{Engine: "", Connection: "whatever_too"}}, true},
+		{DNSConfig{Database: dbsettings{Engine: "whatever", Connection: "whatever_too"}, General: general{Listen: "0.0.0.0:53", Proto: "both", Domain: "acme.example.com", Nsname: "acme.example.com", Nsadmin: "admin.example.com"}}, false},
+		{DNSConfig{Database: dbsettings{Engine: "", Connection: "whatever_too"}, General: general{Listen: "0.0.0.0:53", Proto: "neither", Domain: "acme..com", Nsname: "acme.example.com", Nsadmin: "admin."}}, true},
 		{DNSConfig{Database: dbsettings{Engine: "whatever", Connection: ""}}, true},
 	} {
 		_, err := prepareConfig(test.input)
