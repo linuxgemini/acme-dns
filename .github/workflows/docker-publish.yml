@@ -7,6 +7,7 @@ concurrency: ci-${{ github.ref }}
 # documentation.
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: [ "Go" ]
     branches: [ maintenance, "refs/tags/v*" ]
