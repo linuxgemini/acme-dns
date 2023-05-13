@@ -265,9 +265,11 @@ func (d *acmedb) GetTXTForDomain(domain string) ([]string, error) {
 	defer d.Unlock()
 	domain = sanitizeString(domain)
 	var txts []string
-	// limit records, because a acme-dns cert may not contain more than 100 domains
+	// limit records, because a acme-dns cert may not contain more than ~~100 domains~~
+	// scratch that, many dns providers will have issues above 49 records
+	// 42 it is.
 	getSQL := `
-	SELECT Value FROM txt WHERE Subdomain=$1 ORDER BY InsertDate DESC LIMIT 100
+	SELECT Value FROM txt WHERE Subdomain=$1 ORDER BY InsertDate DESC LIMIT 42
 	`
 	if Config.Database.Engine == "sqlite3" {
 		getSQL = getSQLiteStmt(getSQL)
